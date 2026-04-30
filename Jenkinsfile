@@ -5,25 +5,19 @@ pipeline {
 
         stage('Clone') {
             steps {
-                git 'https://github.com/2024tm93590/ACEest-DevOps.git'
+                echo 'Cloning repository...'
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Check Files') {
             steps {
-                bat 'pip install pytest'
+                bat 'dir'
             }
         }
 
-        stage('Run Tests') {
+        stage('Run Pytest') {
             steps {
                 bat 'python -m pytest'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                bat 'docker build -t aceest-fitness:v1 .'
             }
         }
 
