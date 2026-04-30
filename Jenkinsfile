@@ -1,13 +1,11 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'python:3.10'
+        }
+    }
 
     stages {
-
-        stage('Clone') {
-            steps {
-                echo 'Cloning repository...'
-            }
-        }
 
         stage('Check Files') {
             steps {
@@ -17,13 +15,13 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'pip3 install pytest'
+                sh 'pip install pytest'
             }
         }
 
         stage('Run Pytest') {
             steps {
-                sh 'python3 -m pytest'
+                sh 'pytest'
             }
         }
 
