@@ -1,8 +1,11 @@
 FROM python:3.10
 
 WORKDIR /app
+
 COPY . /app
 
 RUN pip install flask
 
-CMD ["python", "ACEest_Fitness.py"]
+EXPOSE 5000
+
+CMD ["python", "app/ACEest_Fitness.py"]

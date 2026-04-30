@@ -1,4 +1,4 @@
-from flask import Flask, render_template_string, request, redirect, url_for, session
+from flask import Flask, render_template_string, request, redirect, session
 import sqlite3
 from datetime import date
 import random
@@ -13,20 +13,23 @@ def init_db():
     conn = sqlite3.connect(DB_NAME)
     cur = conn.cursor()
 
-    cur.execute("""CREATE TABLE IF NOT EXISTS users (
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS users (
         username TEXT PRIMARY KEY,
         password TEXT,
         role TEXT
     )""")
 
-    cur.execute("""CREATE TABLE IF NOT EXISTS clients (
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS clients (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT UNIQUE,
         program TEXT,
         membership_status TEXT
     )""")
 
-    cur.execute("""CREATE TABLE IF NOT EXISTS workouts (
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS workouts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         client_name TEXT,
         date TEXT,
@@ -41,54 +44,52 @@ def init_db():
     conn.commit()
     conn.close()
 
+
 # ---------------- UI ----------------
-login_page = """
+login_html = """
 <h2>ACEest Login</h2>
 <form method="POST">
-  <input name="username" placeholder="Username"><br>
-  <input name="password" type="password" placeholder="Password"><br>
-  <button type="submit">Login</button>
+<input name="username">
+<input name="password" type="password">
+<button>Login</button>
 </form>
 """
 
-dashboard = """
-<h2>ACEest Dashboard</h2>
-<p>Welcome {{user}}</p>
+dashboard_html = """
+<h2>Dashboard</h2>
+<p>User: {{user}}</p>
 
-<h3>Add Client</h3>
 <form method="POST" action="/add_client">
-  <input name="name" placeholder="Client Name">
-  <button>Add</button>
+<input name="name" placeholder="Client Name">
+<button>Add</button>
 </form>
 
 <h3>Clients</h3>
 <ul>
 {% for c in clients %}
-  <li>
-    {{c[1]}} | {{c[2]}} | {{c[3]}}
-    <a href="/generate/{{c[1]}}">Generate Program</a>
-    <a href="/workout/{{c[1]}}">Add Workout</a>
-  </li>
+<li>
+{{c[1]}} | {{c[2]}}
+<a href="/generate/{{c[1]}}">Generate Program</a>
+<a href="/workout/{{c[1]}}">Workout</a>
+</li>
 {% endfor %}
 </ul>
 
 <a href="/logout">Logout</a>
 """
 
-workout_page = """
-<h2>Add Workout for {{client}}</h2>
-
+workout_html = """
+<h2>Workout - {{client}}</h2>
 <form method="POST">
-  <input name="type" placeholder="Workout Type">
-  <input name="duration" placeholder="Duration">
-  <button>Add</button>
+<input name="type" placeholder="Type">
+<input name="duration" placeholder="Duration">
+<button>Save</button>
 </form>
-
-<a href="/dashboard">Back</a>
 """
 
+
 # ---------------- ROUTES ----------------
-@app.route("/", methods=["GET", "POST"])
+@app.route("/", methods=["GET","POST"])
 def login():
     if request.method == "POST":
         u = request.form["username"]
@@ -96,7 +97,7 @@ def login():
 
         conn = sqlite3.connect(DB_NAME)
         cur = conn.cursor()
-        cur.execute("SELECT * FROM users WHERE username=? AND password=?", (u, p))
+        cur.execute("SELECT * FROM users WHERE username=? AND password=?", (u,p))
         user = cur.fetchone()
         conn.close()
 
@@ -104,11 +105,11 @@ def login():
             session["user"] = u
             return redirect("/dashboard")
 
-    return render_template_string(login_page)
+    return login_html
 
 
 @app.route("/dashboard")
-def home():
+def dashboard():
     if "user" not in session:
         return redirect("/")
 
@@ -118,7 +119,7 @@ def home():
     clients = cur.fetchall()
     conn.close()
 
-    return render_template_string(dashboard, user=session["user"], clients=clients)
+    return render_template_string(dashboard_html, user=session["user"], clients=clients)
 
 
 @app.route("/add_client", methods=["POST"])
@@ -127,8 +128,7 @@ def add_client():
 
     conn = sqlite3.connect(DB_NAME)
     cur = conn.cursor()
-    cur.execute("INSERT OR IGNORE INTO clients (name, program, membership_status)
-                 VALUES (?, 'None', 'Active')", (name,))
+    cur.execute("INSERT OR IGNORE INTO clients VALUES (NULL, ?, 'None', 'Active')", (name,))
     conn.commit()
     conn.close()
 
@@ -137,19 +137,19 @@ def add_client():
 
 @app.route("/generate/<name>")
 def generate(name):
-    programs = ["HIIT", "Strength", "Cardio", "Mobility"]
+    programs = ["HIIT", "Strength", "Cardio"]
     prog = random.choice(programs)
 
     conn = sqlite3.connect(DB_NAME)
     cur = conn.cursor()
-    cur.execute("UPDATE clients SET program=? WHERE name=?", (prog, name))
+    cur.execute("UPDATE clients SET program=? WHERE name=?", (prog,name))
     conn.commit()
     conn.close()
 
-    return f"Program generated for {name}: {prog} <br><a href='/dashboard'>Back</a>"
+    return f"Program: {prog} <br><a href='/dashboard'>Back</a>"
 
 
-@app.route("/workout/<client>", methods=["GET", "POST"])
+@app.route("/workout/<client>", methods=["GET","POST"])
 def workout(client):
     if request.method == "POST":
         t = request.form["type"]
@@ -164,13 +164,14 @@ def workout(client):
 
         return redirect("/dashboard")
 
-    return render_template_string(workout_page, client=client)
+    return render_template_string(workout_html, client=client)
 
 
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/")
+
 
 # ---------------- RUN ----------------
 if __name__ == "__main__":
