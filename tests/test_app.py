@@ -4,7 +4,8 @@ import pytest
 
 from app.ACEest_Fitness import init_db, DB_NAME
 
-
+def test_basic():
+    assert 1 + 1 == 2
 # ---------- TEST 1: Database Creation ----------
 def test_database_created():
     if os.path.exists(DB_NAME):

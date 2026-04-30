@@ -14,21 +14,12 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Install & Test') {
             steps {
                 sh '''
-                python3 -m venv venv
-                . venv/bin/activate
-                pip install --upgrade pip
-                pip install flask pytest
-                '''
-            }
-        }
+                python3 -m pip install --upgrade pip
+                pip3 install flask pytest
 
-        stage('Run Tests') {
-            steps {
-                sh '''
-                . venv/bin/activate
                 pytest -v
                 '''
             }
@@ -44,9 +35,11 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds',
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
                     usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS')]) {
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
                     sh '''
                     echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
                     docker push $IMAGE_NAME
@@ -60,7 +53,8 @@ pipeline {
                 sh '''
                 kubectl apply -f k8s/deployment.yaml
                 kubectl apply -f k8s/service.yaml
-                kubectl rollout status deployment/aceest-deployment
+                kubectl rollout restart deployment aceest-deployment
+                kubectl rollout status deployment aceest-deployment
                 '''
             }
         }

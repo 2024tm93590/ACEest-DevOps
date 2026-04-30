@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: aceest-container
-        image: washifa2024tm93590/aceest-fitness:v4.2
+        image: washifa2024tm93590/aceest-fitness:v4.1
         ports:
         - containerPort: 5000
