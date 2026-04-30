@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 DB_NAME = "aceest_fitness.db"
 
-
+#3.0.1
 class ACEestApp:
     def __init__(self, root: tk.Tk):
         self.root = root
