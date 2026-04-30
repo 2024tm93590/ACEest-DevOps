@@ -11,13 +11,13 @@ pipeline {
 
         stage('Check Files') {
             steps {
-                bat 'dir'
+                sh 'ls'
             }
         }
 
         stage('Run Pytest') {
             steps {
-                bat 'python -m pytest'
+                sh 'python3 -m pytest'
             }
         }
 
