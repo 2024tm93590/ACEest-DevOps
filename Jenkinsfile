@@ -1,9 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.10'
-        }
-    }
+    agent any
 
     stages {
 
@@ -13,15 +9,24 @@ pipeline {
             }
         }
 
+        stage('Install Python & Pip') {
+            steps {
+                sh '''
+                apt-get update
+                apt-get install -y python3 python3-pip
+                '''
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
-                sh 'pip install pytest'
+                sh 'pip3 install pytest'
             }
         }
 
         stage('Run Pytest') {
             steps {
-                sh 'pytest'
+                sh 'python3 -m pytest'
             }
         }
 
