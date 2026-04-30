@@ -9,11 +9,21 @@ pipeline {
             }
         }
 
-        stage('Run Tests in Docker') {
+        stage('Setup Virtual Env') {
             steps {
                 sh '''
-                docker run --rm -v $(pwd):/app -w /app python:3.10 \
-                sh -c "pip install pytest && pytest"
+                python3 -m venv venv
+                . venv/bin/activate
+                pip install pytest
+                '''
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh '''
+                . venv/bin/activate
+                pytest
                 '''
             }
         }
