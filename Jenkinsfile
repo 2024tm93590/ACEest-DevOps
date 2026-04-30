@@ -9,21 +9,12 @@ pipeline {
             }
         }
 
-        stage('Check Python') {
+        stage('Run Tests in Docker') {
             steps {
-                sh 'python --version || python3 --version'
-            }
-        }
-
-        stage('Install Pytest (user mode)') {
-            steps {
-                sh 'python3 -m pip install --user pytest || python -m pip install --user pytest'
-            }
-        }
-
-        stage('Run Tests') {
-            steps {
-                sh 'python3 -m pytest || python -m pytest'
+                sh '''
+                docker run --rm -v $(pwd):/app -w /app python:3.10 \
+                sh -c "pip install pytest && pytest"
+                '''
             }
         }
 
