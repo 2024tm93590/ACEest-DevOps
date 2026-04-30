@@ -1,0 +1,5 @@
+containers:
+  - name: aceest
+    image: washifa2024tm93590/aceest-fitness:v1
+    ports:
+      - containerPort: 5000
