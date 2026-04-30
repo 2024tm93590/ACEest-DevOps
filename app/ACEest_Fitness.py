@@ -149,7 +149,7 @@ Weight   : {weight} kg
 Program  : {program}
 Calories : {calories} kcal/day
 """)
-####
+
     def save_progress(self):
         week = datetime.now().strftime("Week %U - %Y")
         self.cur.execute("""
