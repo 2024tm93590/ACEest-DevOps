@@ -9,24 +9,21 @@ pipeline {
             }
         }
 
-        stage('Install Python & Pip') {
+        stage('Check Python') {
             steps {
-                sh '''
-                apt-get update
-                apt-get install -y python3 python3-pip
-                '''
+                sh 'python --version || python3 --version'
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Install Pytest (user mode)') {
             steps {
-                sh 'pip3 install pytest'
+                sh 'python3 -m pip install --user pytest || python -m pip install --user pytest'
             }
         }
 
-        stage('Run Pytest') {
+        stage('Run Tests') {
             steps {
-                sh 'python3 -m pytest'
+                sh 'python3 -m pytest || python -m pytest'
             }
         }
 
